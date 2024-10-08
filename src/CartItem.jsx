@@ -4,32 +4,49 @@ import { removeItem, updateQuantity } from './CartSlice';
 import './CartItem.css';
 
 const CartItem = ({ onContinueShopping }) => {
-  const cart = useSelector(state => state.cart.items);
-  const dispatch = useDispatch();
+    const cart = useSelector(state => state.cart.items);
+    const dispatch = useDispatch();
+    const totalItems = useSelector(state => state.cart.items.reduce((total, item) => total + item.quantity, 0));
 
-  // Calculate total amount for all products in the cart
-  const calculateTotalAmount = () => {
+
+    // Calculate total amount for all products in the cart
+    const calculateTotalAmount = () => {
+        return cart.reduce((total, item) => {
+            const itemCost = parseFloat(item.cost.replace('$', ''));
+            return total + (itemCost * item.quantity);
+        }, 0);
  
-  };
+    };
 
-  const handleContinueShopping = (e) => {
-   
-  };
+    const handleContinueShopping = (e) => {
+        e.preventDefault();
+        onContinueShopping();
+    };
 
 
 
   const handleIncrement = (item) => {
+    dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
+
   };
 
   const handleDecrement = (item) => {
+    if (item.quantity > 1) {
+    dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+  } else {
+    dispatch(removeItem(item)); // Or remove the item if quantity goes to 0
+  }
    
   };
 
   const handleRemove = (item) => {
+    dispatch(removeItem(item));
   };
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {
+    const unitCost = parseFloat(item.cost.replace('$', ''));
+    return (unitCost * item.quantity).toFixed(2);
   };
 
   return (
